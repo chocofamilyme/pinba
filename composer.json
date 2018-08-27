@@ -1,0 +1,31 @@
+{
+  "name": "chocofamilyme/profiler",
+  "description": "Библиотека для профилирования",
+  "keywords": [
+    "profiler",
+    "pinba",
+    "phalcon"
+  ],
+  "type": "library",
+  "license": [
+    "BSD-3-Clause"
+  ],
+  "homepage": "https://github.com/chocofamilyme/profiler",
+  "authors": [
+    {
+      "name": "IT Chocolife.me",
+      "homepage": "https://chocolife.me/"
+    }
+  ],
+  "require": {
+    "php": ">= 7.0.0",
+    "chocofamilyme/pathcorrelation": "0.2.*",
+    "ext-phalcon": ">= 3.0.0",
+    "ext-pinba": ">= 1.0.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Chocofamily\\": "src/"
+    }
+  }
+}
