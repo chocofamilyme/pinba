@@ -11,7 +11,7 @@ class File implements ProfilerInterface
 
     public function __construct($host = null, $server = null)
     {
-        $this->logger = \Phalcon\Di::getDefault()->get('logger', ['profile']);
+        $this->logger = \Phalcon\Di::getDefault()->get('logger', ['profile.log']);
     }
 
     public function start($tags)
