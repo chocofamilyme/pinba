@@ -21,7 +21,6 @@
     "php": ">= 7.0.0",
     "chocofamilyme/pathcorrelation": "0.2.*",
     "ext-phalcon": ">= 3.0.0",
-    "ext-pinba": ">= 1.0.0"
   },
   "autoload": {
     "psr-4": {
