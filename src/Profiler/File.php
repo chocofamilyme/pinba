@@ -23,7 +23,7 @@ class File implements ProfilerInterface
     public function stop()
     {
         $this->end = microtime(true);
-        $time      = $this->start - $this->end;
+        $time      = $this->end - $this->start;
 
         $this->logger->debug('time: '.$time.' секунд');
     }
