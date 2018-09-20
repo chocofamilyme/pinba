@@ -43,9 +43,7 @@ class Pinba implements ProfilerInterface
     }
 
     /**
-     * Останвливает таймер
-     *
-     * @param $timer
+     * Останавливает таймер
      */
     public function stop()
     {
