@@ -2,26 +2,38 @@
 
 namespace Chocofamily\Profiler;
 
-use Chocofamily\Http\CorrelationId;
+use Phalcon\Config;
 
 /**
  * Класс Pinba обеспечивает простой интерфейс, который позволяет создавать произвольные пакеты данных Pinba в PHP.
  */
 class Pinba implements ProfilerInterface
 {
-    private $host;
-    private $server;
-    private $initTags;
+    /**
+     * @var array
+     */
+    private $initTags = [];
+
     private $timer;
 
-    /** @var CorrelationId */
-    private $correlationId;
+    /**
+     * @var
+     */
+    private $tracer;
 
-    public function __construct($host, $server = null)
+    public function __construct(Config $config)
     {
-        $this->host          = $host;
-        $this->server        = $server;
-        $this->correlationId = CorrelationId::getInstance();
+        if (extension_loaded('pinba') == false) {
+            throw new \ErrorException('pinba extensions not installing', 500);
+        }
+
+        pinba_hostname_set($config->get('hostName'));
+        pinba_server_name_set($config->get('serverName'));
+
+        if ($tracer = $config->get('tracer')) {
+            $this->tracer = $tracer;
+        }
+
         $this->setInitTags();
     }
 
@@ -33,13 +45,13 @@ class Pinba implements ProfilerInterface
      *
      * @return mixed
      */
-    public function start($tags)
+    public function start(array $tags)
     {
-        if (function_exists('pinba_timer_start')) {
-            $allTags = array_merge($this->getInitTags(), $tags);
-
-            $this->timer = pinba_timer_start($allTags);
+        if ($initTags = $this->getInitTags()) {
+            $tags = array_merge($initTags, $tags);
         }
+
+        $this->timer = pinba_timer_start($allTags);
     }
 
     /**
@@ -47,9 +59,13 @@ class Pinba implements ProfilerInterface
      */
     public function stop()
     {
-        if (function_exists('pinba_timer_stop')) {
-            pinba_timer_stop($this->timer);
-        }
+        pinba_timer_stop($this->timer);
+    }
+
+    public function stopAll()
+    {
+        unset($this->timer);
+        pinba_timers_stop();
     }
 
     /**
@@ -57,58 +73,31 @@ class Pinba implements ProfilerInterface
      *
      * @param $request_uri
      */
-    public function script($request_uri)
+    public function script(string $request_uri)
     {
-        if (function_exists('pinba_script_name_set')) {
-            pinba_script_name_set($request_uri);
+        pinba_script_name_set($request_uri);
+    }
+
+    protected function setInitTags()
+    {
+        if ($this->tracer) {
+            $this->initTags = [
+                'correlation_id' => $this->tracer->getCorrelationId(),
+                'span_id'        => $this->tracer->getSpanId(),
+            ];
         }
     }
 
-    private function setInitTags()
-    {
-        $this->initTags = [
-            '__hostname'    => $this->host,
-            '__server_name' => $this->server,
-            'server'        => $this->server,
-            "correlation_id" => $this->correlationId->getCorrelationId(),
-            "span_id"        => $this->correlationId->getSpanId(),
-        ];
-    }
-
-    private function getInitTags()
+    protected function getInitTags()
     {
         return $this->initTags;
     }
 
     /**
-     * @return null
+     * @return mixed
      */
-    public function getHost()
+    public function getTimer()
     {
-        return $this->host;
-    }
-
-    /**
-     * @param null $host
-     */
-    public function setHost($host)
-    {
-        $this->host = $host;
-    }
-
-    /**
-     * @return null
-     */
-    public function getServer()
-    {
-        return $this->server;
-    }
-
-    /**
-     * @param null $server
-     */
-    public function setServer($server)
-    {
-        $this->server = $server;
+        return $this->timer;
     }
 }

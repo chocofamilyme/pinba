@@ -15,11 +15,9 @@
             'drivers' => [
                 'pinba' => [
                   'adapter' => 'Pinba',
-                  'host' => 'example.com',
                 ],
                 'file' => [
                   'adapter' => 'File',
-                  'host' => 'example.com',
                 ],
             ],
         ],
@@ -30,14 +28,14 @@
 Добавить его в DI контейнер:
 ````php
     $di = \Phalcon\Di::getDefault();
-    $di->set('profiler', function () use ($di) {
-      $host   = $di->getShared('config')->domain;
-      $server = $di->getShared('config')->server;
+    $di->setShared('profiler', function () use ($di) {
+      $configProfiler = new Config([
+        'hostName'   => 'prod1',
+        'serverName' => 'test.com',
+        'tracer'     => CorrelationId::getInstance(),
+      ]);
 
-      $config  = $di->getShared('config')->profiler;
-      $adapter = 'Chocofamily\Profiler\\'.$config->drivers[$config->default]->adapter;
-
-      return new $adapter($host, $server);
+      return new Chocofamily\Profiler\Pinba($configProfiler);
     });  
 ````
 
@@ -65,6 +63,3 @@ $this->profiler->start([
 
 $profiler->stop();
 ````
-
-Библиотека автоматом подставляет параметры correlation_id и span_id. Эти параметры нужны для отслеживания запроса по 
-нескольким сервисам. Используется библиотека https://github.com/chocofamilyme/pathcorrelation
