@@ -27,8 +27,8 @@ class Pinba implements ProfilerInterface
             throw new \ErrorException('pinba extensions not installing', 500);
         }
 
-        pinba_hostname_set($config->get('hostName'));
-        pinba_server_name_set($config->get('serverName'));
+        pinba_hostname_set($config->get('hostName', gethostname()));
+        pinba_server_name_set($config->get('serverName', $_SERVER['SERVER_NAME']));
 
         if ($tracer = $config->get('tracer')) {
             $this->tracer = $tracer;
