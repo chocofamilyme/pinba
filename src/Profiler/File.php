@@ -15,9 +15,9 @@ class File implements ProfilerInterface
 {
     private $logger;
 
-    private $timer;
+    private $timers;
 
-    private $countTags = 0;
+    private $incr = 0;
 
     /**
      * File constructor.
@@ -35,27 +35,33 @@ class File implements ProfilerInterface
         }
     }
 
-    public function start(array $tags)
+    public function start(array $tags): int
     {
-        $currentTags                        = $this->countTags++;
-        $this->timer[$currentTags]['tags']  = $tags;
-        $this->timer[$currentTags]['start'] = microtime(true);
+        $currentTags                         = $this->incr++;
+        $this->timers[$currentTags]['tags']  = $tags;
+        $this->timers[$currentTags]['start'] = microtime(true);
+
+        return $currentTags;
     }
 
-    public function stop()
+    public function stop(int $timerId = 0)
     {
-        $currentTags = --$this->countTags;
+        if ($timerId) {
+            $currentTags = $timerId;
+        } else {
+            $currentTags = --$this->incr;
+        }
 
-        $this->timer[$currentTags]['stop'] = microtime(true);
+        $this->timers[$currentTags]['stop'] = microtime(true);
 
-        $time = $this->timer[$currentTags]['stop'] - $this->timer[$currentTags]['start'];
+        $time = $this->timers[$currentTags]['stop'] - $this->timers[$currentTags]['start'];
 
-        $this->logger->debug(print_r($this->timer[$currentTags]['tags'], true).' : '.$time.' секунд');
+        $this->logger->debug(print_r($this->timers[$currentTags]['tags'], true).' : '.$time.' секунд');
     }
 
     public function stopAll()
     {
-        while ($this->countTags > 0) {
+        while ($this->incr > 0) {
             $this->stop();
         }
     }
@@ -68,8 +74,8 @@ class File implements ProfilerInterface
     /**
      * @return mixed
      */
-    public function getTimer()
+    public function getTimers()
     {
-        return $this->timer;
+        return $this->timers;
     }
 }

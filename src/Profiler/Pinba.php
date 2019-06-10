@@ -10,31 +10,58 @@ use Phalcon\Config;
 class Pinba implements ProfilerInterface
 {
     /**
+     * @var bool
+     */
+    private $isPinbaInstalled = true;
+
+    /**
+     * @var Config
+     */
+    private $config;
+
+    /**
      * @var array
      */
     private $initTags = [];
 
-    private $timer;
-
     /**
      * @var
      */
+    private $timers;
+
+    /**
+     * @var int
+     */
+    private $incr = 0;
+
+    /**
+     * @var TracerInterface
+     */
     private $tracer;
 
+    /**
+     * Pinba constructor.
+     *
+     * @param Config $config
+     */
     public function __construct(Config $config)
     {
         if (extension_loaded('pinba') == false) {
-            throw new \ErrorException('pinba extensions not installing', 500);
+            $this->isPinbaInstalled = false;
         }
 
-        pinba_hostname_set($config->get('hostName', gethostname()));
-        pinba_server_name_set($config->get('serverName', $_SERVER['SERVER_NAME']));
-
-        if ($tracer = $config->get('tracer')) {
-            $this->tracer = $tracer;
-        }
+        $this->config = $config;
+        $this->init();
 
         $this->setInitTags();
+    }
+
+    protected function init()
+    {
+        if ($this->isPinbaInstalled) {
+            pinba_hostname_set($this->config->get('hostName', gethostname()));
+            pinba_server_name_set($this->config->get('serverName', $_SERVER['SERVER_NAME']));
+        }
     }
 
     /**
@@ -45,27 +72,47 @@ class Pinba implements ProfilerInterface
      *
      * @return mixed
      */
-    public function start(array $tags)
+    public function start(array $tags): int
     {
+        if (!$this->isPinbaInstalled) {
+            return 0;
+        }
+
         if ($initTags = $this->getInitTags()) {
             $tags = array_merge($initTags, $tags);
         }
 
-        $this->timer = pinba_timer_start($allTags);
+        $timerId                = $this->incr++;
+        $this->timers[$timerId] = pinba_timer_start($tags);
+
+        return $timerId;
     }
 
     /**
      * Останавливает таймер
+     *
+     * @param int $timerId
      */
-    public function stop()
+    public function stop(int $timerId)
     {
-        pinba_timer_stop($this->timer);
+        if (!$this->isPinbaInstalled) {
+            return;
+        }
+
+        if ($this->isPinbaInstalled && isset($this->timers[$timerId])) {
+            pinba_timer_stop($this->timers[$timerId]);
+            unset($this->timers[$timerId]);
+        }
     }
 
     public function stopAll()
     {
-        unset($this->timer);
+        if (!$this->isPinbaInstalled) {
+            return;
+        }
+
         pinba_timers_stop();
+        unset($this->timers);
     }
 
     /**
@@ -75,10 +122,14 @@ class Pinba implements ProfilerInterface
      */
     public function script(string $request_uri)
     {
+        if (!$this->isPinbaInstalled) {
+            return;
+        }
+
         pinba_script_name_set($request_uri);
     }
 
-    protected function setInitTags()
+    public function setInitTags()
     {
         if ($this->tracer) {
             $this->initTags = [
@@ -88,7 +139,7 @@ class Pinba implements ProfilerInterface
         }
     }
 
-    protected function getInitTags()
+    public function getInitTags()
     {
         return $this->initTags;
     }
@@ -96,8 +147,24 @@ class Pinba implements ProfilerInterface
     /**
      * @return mixed
      */
-    public function getTimer()
+    public function getTimers()
     {
-        return $this->timer;
+        return $this->timers;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTracer()
+    {
+        return $this->tracer;
+    }
+
+    /**
+     * @param mixed $tracer
+     */
+    public function setTracer(TracerInterface $tracer)
+    {
+        $this->tracer = $tracer;
     }
 }
