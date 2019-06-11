@@ -78,4 +78,14 @@ class File implements ProfilerInterface
     {
         return $this->timers;
     }
+
+    /**
+     * Вернет информацию по все таймерам и метрикам
+     *
+     * @return array
+     */
+    public function getData(): array
+    {
+        return $this->getTimers();
+    }
 }

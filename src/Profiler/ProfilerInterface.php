@@ -13,4 +13,6 @@ interface ProfilerInterface
     public function script(string $url);
 
     public function getTimers();
+
+    public function getData(): array;
 }
