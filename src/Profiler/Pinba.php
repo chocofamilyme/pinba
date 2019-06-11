@@ -129,6 +129,20 @@ class Pinba implements ProfilerInterface
         pinba_script_name_set($request_uri);
     }
 
+    /**
+     * Вернет информацию по все таймерам и метрикам
+     *
+     * @return array
+     */
+    public function getData(): array
+    {
+        if (!$this->isPinbaInstalled) {
+            return [];
+        }
+
+        return (array) pinba_get_info();
+    }
+
     public function setInitTags()
     {
         if ($this->tracer) {
