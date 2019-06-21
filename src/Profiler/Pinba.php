@@ -151,8 +151,8 @@ class Pinba implements ProfilerInterface
     {
         if ($this->tracer) {
             $this->initTags = [
-                'trace' => $this->tracer->getCorrelationId(),
-                'span'  => $this->tracer->getSpanId(),
+                'correlation_id' => $this->tracer->getCorrelationId(),
+                'span_id'        => $this->tracer->getSpanId(),
             ];
         }
     }
