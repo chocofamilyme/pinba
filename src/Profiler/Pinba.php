@@ -61,6 +61,10 @@ class Pinba implements ProfilerInterface
         if ($this->isPinbaInstalled) {
             pinba_hostname_set($this->config->get('hostName', gethostname()));
             pinba_server_name_set($this->config->get('serverName', $_SERVER['SERVER_NAME'] ?? ''));
+
+            if ($schema = $this->config->get('schema')) {
+                pinba_schema_set($schema);
+            }
         }
     }
 
