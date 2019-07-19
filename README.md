@@ -8,20 +8,7 @@
 ````php
   
     return [
-        ...
-        'profiler' => [
-            'default' => 'pinba',
-            
-            'drivers' => [
-                'pinba' => [
-                  'adapter' => 'Pinba',
-                ],
-                'file' => [
-                  'adapter' => 'File',
-                ],
-            ],
-        ],
-        ...
+        'driver' => env('PROFILER_DRIVER', 'pinba'),
     ];
 ````
 
@@ -31,8 +18,7 @@
     $di->setShared('profiler', function () use ($di) {
       $configProfiler = new Config([
         'hostName'   => 'prod1',
-        'serverName' => 'test.com',
-        'tracer'     => CorrelationId::getInstance(),
+        'serverName' => 'test.com'
       ]);
 
       return new Chocofamily\Profiler\Pinba($configProfiler);
@@ -42,7 +28,7 @@
 Один раз в начале запуска приложения указать скрипт:
 
 ````php
-$url = $application->request->getURI();
+$url = $application->router->getMatchedRoute()->getPattern();
 $method = $application->request->getMethod();
 
 $application->getDI()->get('profiler')->script($method.': '.$url);
