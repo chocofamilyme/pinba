@@ -38,7 +38,7 @@ $application->getDI()->get('profiler')->script($method.': '.$url);
 
 ````php
 $profiler = \Phalcon\Di::getDefault()->get('profiler');
-$this->profiler->start([
+$timer = $this->profiler->start([
     'group'    => 'database',
     'type'     => 'SELECT',
     'query'    => 'SELECT * FROM tags',
@@ -47,5 +47,5 @@ $this->profiler->start([
 
 // Какая-та логика приложения
 
-$profiler->stop();
+$profiler->stop($timer);
 ````
