@@ -185,4 +185,17 @@ class Pinba implements ProfilerInterface
     {
         $this->tracer = $tracer;
     }
+
+    /**
+     * @param string|null $scriptName
+     * @param int|null    $flag
+     */
+    public function flush(?string $scriptName = null, ?int $flag = null): void
+    {
+        if (!$this->isPinbaInstalled) {
+            return;
+        }
+
+        pinba_flush($scriptName, $flag);
+    }
 }

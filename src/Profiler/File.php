@@ -88,4 +88,17 @@ class File implements ProfilerInterface
     {
         return $this->getTimers();
     }
+
+    /**
+     * @param string|null $scriptName
+     * @param int|null    $flag
+     */
+    public function flush(?string $scriptName = null, ?int $flag = null): void
+    {
+        if ($scriptName) {
+            $this->script($scriptName);
+        }
+
+        $this->stopAll();
+    }
 }
