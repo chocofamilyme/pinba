@@ -15,4 +15,6 @@ interface ProfilerInterface
     public function getTimers();
 
     public function getData(): array;
+
+    public function flush(?string $scriptName = null, ?int $flag = null): void;
 }
