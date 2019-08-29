@@ -71,22 +71,28 @@ class Pinba implements ProfilerInterface
     /**
      * Создает и запускает новый Таймер.
      *
-     * @param $tags      - теги массив тегов и их значений в виде "тег" => "значение". Не может содержать числовые
-     *                   показатели по понятным причинам.
-     *
+     * @param string $group
+     * @param string $type
+     * @param string $method
+     * @param string $category
      * @return mixed
      */
-    public function start(array $tags): int
+    public function start(string $group, string $type, string $method, string $category): int
     {
         if (!$this->isPinbaInstalled) {
             return 0;
         }
 
         if ($initTags = $this->getInitTags()) {
-            $tags = array_merge($initTags, $tags);
+            $tags = array_merge($initTags, [
+                'group' => $group,
+                'type' => $type,
+                'method' => $method,
+                'category' => $category,
+            ]);
         }
 
-        $timerId                = $this->incr++;
+        $timerId = $this->incr++;
         $this->timers[$timerId] = pinba_timer_start($tags);
 
         return $timerId;

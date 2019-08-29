@@ -4,7 +4,7 @@ namespace Chocofamily\Profiler;
 
 interface ProfilerInterface
 {
-    public function start(array $tags): int;
+    public function start(string $group, string $type, string $method, string $category): int;
 
     public function stop(int $timerId);
 
