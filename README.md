@@ -38,12 +38,7 @@ $application->getDI()->get('profiler')->script($method.': '.$url);
 
 ````php
 $profiler = \Phalcon\Di::getDefault()->get('profiler');
-$timer = $this->profiler->start([
-    'group'    => 'database',
-    'type'     => 'SELECT',
-    'query'    => 'SELECT * FROM tags',
-    'params' => [],
-]);
+$timer = $this->profiler->start('DB', '', 'SELECT', 'Oauth permission check');
 
 // Какая-та логика приложения
 
