@@ -79,6 +79,13 @@ class Pinba implements ProfilerInterface
      */
     public function start(string $group, string $type, string $method, string $category): int
     {
+        $tags = [
+            'group' => $group,
+            'type' => $type,
+            'method' => $method,
+            'category' => $category,
+        ];
+
         if (!$this->isPinbaInstalled) {
             return 0;
         }
